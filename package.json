@@ -1,0 +1,22 @@
+{
+    "name": "ghost-relay",
+    "version": "0.0.1",
+    "description": "A Nostr relay where events are truly ephemeral",
+    "author": "Dolu",
+    "module": "src/index.ts",
+    "type": "module",
+    "scripts": {
+        "start": "bun run --watch src/index.ts",
+        "format": "bun prettier . --write"
+    },
+    "devDependencies": {
+        "@types/bun": "latest",
+        "prettier": "3.3.3"
+    },
+    "peerDependencies": {
+        "typescript": "^5.0.0"
+    },
+    "dependencies": {
+        "nostr-tools": "^2.7.2"
+    }
+}
