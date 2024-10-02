@@ -1,8 +1,10 @@
 import type { WebSocketData } from "./types/websocket";
 import NostrClient from "./models/nostr_client";
+import { env } from "./helpers/env";
+import logger from "./helpers/logger";
 
 const server = Bun.serve<WebSocketData>({
-    port: 3000,
+    port: env.PORT ?? 3000,
     fetch(req, server) {
         server.upgrade(req, {
             data: {},
@@ -15,6 +17,7 @@ const server = Bun.serve<WebSocketData>({
             ws.data.client.handleMessage(message);
         },
         open(ws) {
+            logger.debug("New connection");
             ws.data.client = new NostrClient(ws);
         },
         close(ws, code, message) {
@@ -24,4 +27,4 @@ const server = Bun.serve<WebSocketData>({
     },
 });
 
-console.log(`Ghost relay running on ws://${server.hostname}:${server.port}`);
+logger.info(`Ghost relay running on ws://${server.hostname}:${server.port}`);

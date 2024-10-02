@@ -8,13 +8,15 @@ import {
     parseAndValidateEvent,
     parseAndValidateFilters,
 } from "../helpers/nostr";
-import eventStore from "../../data/event.store";
+import eventStore from "../data/event.store";
 import { matchFilters, type Filter, type Event } from "nostr-tools";
+import logger from "../helpers/logger";
 
 export default class NostrClient {
     #ws: ServerWebSocket<WebSocketData>;
     #subs: Map<string, Filter[]> = new Map();
     #eventHandler: (event: any) => void;
+    #logger = logger.child({ module: "NostrClient" });
 
     constructor(ws: ServerWebSocket<WebSocketData>) {
         this.#ws = ws;
@@ -55,7 +57,19 @@ export default class NostrClient {
                 case "REQ": {
                     const [_, subId, ...filtersPayload] = parsedMessage;
                     const filters = parseAndValidateFilters(filtersPayload);
+                    if (this.#subs.has(subId)) {
+                        this.#send(
+                            formatNotice(
+                                "ERROR",
+                                "subscription id already exists",
+                            ),
+                        );
+                        return;
+                    }
+
                     this.#subs.set(subId, filters);
+                    this.#logger.trace(`New subscription ${subId}`);
+
                     for (const filter of filters) {
                         for (const event of eventStore.getEventsByFilter(
                             filter,
@@ -75,10 +89,14 @@ export default class NostrClient {
                 }
                 case "CLOSE": {
                     const subscriptionId = parsedMessage[1];
+                    this.#logger.trace(
+                        `Closing subscription ${subscriptionId}`,
+                    );
                     this.#subs.delete(subscriptionId);
                     break;
                 }
                 default: {
+                    this.#logger.debug(`Unparseable message: ${message}`);
                     this.#send(formatNotice("ERROR", "unparseable message"));
                     return;
                 }

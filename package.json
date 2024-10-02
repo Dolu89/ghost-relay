@@ -6,7 +6,7 @@
     "module": "src/index.ts",
     "type": "module",
     "scripts": {
-        "start": "bun run --watch src/index.ts",
+        "dev": "bun run --watch src/index.ts | pino-pretty",
         "format": "bun prettier . --write"
     },
     "devDependencies": {
@@ -17,6 +17,9 @@
         "typescript": "^5.0.0"
     },
     "dependencies": {
-        "nostr-tools": "^2.7.2"
+        "@vinejs/vine": "^2.1.0",
+        "nostr-tools": "^2.7.2",
+        "pino": "^9.4.0",
+        "pino-pretty": "^11.2.2"
     }
 }
