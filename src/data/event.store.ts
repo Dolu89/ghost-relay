@@ -30,8 +30,6 @@ class EventStore extends EventEmitter {
     }
 
     getEventsByFilter(filter: Filter): Event[] {
-        console.log(filter);
-        console.log(this.#events);
         let events = this.#events
             .filter((event) => matchFilter(filter, event))
             .sort((a, b) => a.created_at - b.created_at);
