@@ -6,6 +6,7 @@
     "module": "src/index.ts",
     "type": "module",
     "scripts": {
+        "start": "bun run src/index.ts",
         "dev": "bun run --watch src/index.ts | pino-pretty",
         "format": "bun prettier . --write"
     },
