@@ -1,12 +1,36 @@
 import { verifyEvent, type Event, type Filter } from "nostr-tools";
-import { InvalidEventError } from "../exceptions/nostr.exception";
+import {
+    InvalidEventError,
+    InvalidFilterError,
+} from "../exceptions/nostr.exception";
 
 type NoticeType = "ERROR" | "WARNING" | "INFO";
 
 export function parseAndValidateFilters(filters: object[]): Filter[] {
     assertIsNostrFilters(filters);
-    // TODO add filter validation
+    if (filters.some((filter) => !isAllowedFilter(filter))) {
+        throw new InvalidFilterError();
+    }
     return filters;
+}
+
+/**
+ * Disallow filters that do not have any of the following fields: authors, #p to prevent sniffing data by the client
+ * @param filter
+ * @returns isAllowed
+ */
+function isAllowedFilter(filter: Filter): boolean {
+    let isAllowed = false;
+
+    // Rules are intentionally write in this way to make it easier to read and to add new rules
+    if (filter.authors) {
+        isAllowed = true;
+    }
+    if (filter["#p"]) {
+        isAllowed = true;
+    }
+
+    return isAllowed;
 }
 
 function assertIsNostrFilters(data: object[]): asserts data is Filter[] {

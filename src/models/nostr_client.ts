@@ -57,6 +57,14 @@ export default class NostrClient {
                 case "REQ": {
                     const [_, subId, ...filtersPayload] = parsedMessage;
                     const filters = parseAndValidateFilters(filtersPayload);
+
+                    if (this.#subs.size >= 5) {
+                        this.#send(
+                            formatNotice("ERROR", "Too many subscriptions"),
+                        );
+                        return;
+                    }
+
                     if (this.#subs.has(subId)) {
                         this.#send(
                             formatNotice(
