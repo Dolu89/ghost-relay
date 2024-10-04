@@ -30,9 +30,12 @@ class EventStore extends EventEmitter {
     }
 
     getEventsByFilter(filter: Filter): Event[] {
+        if (filter.limit === 0) return [];
+
         let events = this.#events
             .filter((event) => matchFilter(filter, event))
             .sort((a, b) => b.created_at - a.created_at);
+
         if (filter.limit && filter.limit > 0) {
             events = events.slice(0, filter.limit);
         }
