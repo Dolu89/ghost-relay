@@ -23,6 +23,9 @@ function isAllowedFilter(filter: Filter): boolean {
     let isAllowed = false;
 
     // Rules are intentionally write in this way to make it easier to read and to add new rules
+    if (filter.ids) {
+        isAllowed = true;
+    }
     if (filter.authors) {
         isAllowed = true;
     }
