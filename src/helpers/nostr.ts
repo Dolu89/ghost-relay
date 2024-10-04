@@ -39,12 +39,15 @@ function assertIsNostrFilters(data: object[]): asserts data is Filter[] {
     }
 }
 
-export function parseAndValidateEvent(data: object): Event {
+export function parseEvent(data: object): Event {
     assertIsNostrEvent(data);
-    if (!verifyEvent(data)) {
-        throw new InvalidEventError();
-    }
     return data;
+}
+
+export function validateEvent(event: Event) {
+    if (!verifyEvent(event)) {
+        throw new InvalidEventError("Event is not valid");
+    }
 }
 
 function assertIsNostrEvent(data: object): asserts data is Event {
@@ -65,6 +68,10 @@ export function formatNotice(type: NoticeType, message: string): string {
     return JSON.stringify(["NOTICE", `${type}: ${message}`]);
 }
 
-export function formatOk(eventId: string): string {
-    return JSON.stringify(["OK", eventId, true]);
+export function formatOk(
+    eventId: string,
+    success: boolean,
+    message: string = "",
+): string {
+    return JSON.stringify(["OK", eventId, success, message]);
 }

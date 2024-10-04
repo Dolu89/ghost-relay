@@ -5,12 +5,14 @@ import {
     formatEvent,
     formatNotice,
     formatOk,
-    parseAndValidateEvent,
     parseAndValidateFilters,
+    parseEvent,
+    validateEvent,
 } from "../helpers/nostr";
 import eventStore from "../data/event.store";
 import { matchFilters, type Filter, type Event } from "nostr-tools";
 import logger from "../helpers/logger";
+import { InvalidEventError } from "../exceptions/nostr.exception";
 
 export default class NostrClient {
     #ws: ServerWebSocket<WebSocketData>;
@@ -91,9 +93,20 @@ export default class NostrClient {
                     break;
                 }
                 case "EVENT": {
-                    const event = parseAndValidateEvent(parsedMessage[1]);
-                    eventStore.addEvent(event);
-                    this.#send(formatOk(event.id));
+                    const event = parseEvent(parsedMessage[1]);
+                    try {
+                        validateEvent(event);
+                        eventStore.addEvent(event);
+                        this.#send(formatOk(event.id, true));
+                    } catch (error) {
+                        if (error instanceof InvalidEventError) {
+                            this.#send(
+                                formatOk(event.id, false, error.message),
+                            );
+                        } else {
+                            this.#send(formatOk(event.id, false));
+                        }
+                    }
                     break;
                 }
                 case "CLOSE": {
