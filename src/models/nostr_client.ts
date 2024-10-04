@@ -38,21 +38,22 @@ export default class NostrClient {
     }
 
     handleMessage(message: string | Buffer) {
-        if (
-            typeof message !== "string" ||
-            (!message.startsWith("[") && !message.endsWith("]"))
-        ) {
-            this.#send(formatNotice("ERROR", "unparseable message"));
-            return;
-        }
-        const parsedMessage = JSON.parse(message);
-        if (!Array.isArray(parsedMessage) || parsedMessage.length < 2) {
-            this.#send(formatNotice("ERROR", "unparseable message"));
-            return;
-        }
-
-        const type = parsedMessage[0];
         try {
+            logger.debug(`Received message: ${message}`);
+            if (
+                typeof message !== "string" ||
+                (!message.startsWith("[") && !message.endsWith("]"))
+            ) {
+                this.#send(formatNotice("ERROR", "unparseable message"));
+                return;
+            }
+            const parsedMessage = JSON.parse(message);
+            if (!Array.isArray(parsedMessage) || parsedMessage.length < 2) {
+                this.#send(formatNotice("ERROR", "unparseable message"));
+                return;
+            }
+
+            const type = parsedMessage[0];
             switch (type) {
                 case "REQ": {
                     const [_, subId, ...filtersPayload] = parsedMessage;
